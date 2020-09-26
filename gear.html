@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- common -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    
+    <!-- production -->
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+
+    <!-- development -->
+    <!-- <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script> -->
+
+    <title>Gear Component</title>
+</head>
+<body class="bg-light text-center">
+    <div id="root"></div>
+</body>
+
+<script type="text/babel">
+    class Gear extends React.Component {
+        constructor(props) {
+            super(props)
+            
+            // limit propsをメンバ変数limitへ格納する
+            this.limit = this.props.limit
+            this.timer = null
+
+            // state変数の宣言と初期化処理
+            // this.state.step等でstate変数へアクセスが可能となる
+            // state変数への値の代入には、this.setStateメソッドを使用する
+            this.state = {
+                step: 0,
+                cycle: 0
+            }
+
+            // incrementメソッドに、thisをバインドする。
+            // これにより、incrementメソッド内で、thisにアクセスできる
+            this.increment = this.increment.bind(this)
+        }
+
+        /**
+        * componentDidMount()
+        * コンポーネントがマウントされた場合に動作するライフサイクルメソッド
+        * 「constructor -> componentDidMount -> render」の順番で実行される
+        **/
+        componentDidMount() {
+            this.timer = setInterval(()=>{
+                this.increment()
+            }, 1000)
+        }
+
+        /**
+        * componentWillUnmount()
+        * コンポーネントがアンマウントされた場合に動作するライフサイクルメソッド
+        * Intervalなどのクリア処理を行うべきメソッドのクリア処理を実施する
+        **/
+        componentWillUnmount() {
+            clearInterval(this.timer)
+        }
+
+        /**
+        * increment()
+        * step数の更新と、cycle数の更新をおこなうメソッド
+        * constructor内で、bindしているため、thisプロパティにアクセスできる
+        **/
+        increment() {
+            if (this.state.step >= this.limit) {
+                // state変数の更新をおこなう。複数のstate変数を更新する場合は、以下のように記述する
+                this.setState(state => ({
+                    step: 0,
+                    cycle: this.state.cycle + 1
+                }))
+             } else {
+                 // state変数の更新をおこなう。１つだけのstate変数の更新ならば、以下のように記述する
+                 this.setState({step: this.state.step + 1})
+            }
+        }
+
+        /**
+        * render()
+        * HTML上に描画（画面に表示）するHTMLタグを、return内に記載する
+        * return内には、1つのタグしか許されていないため、<div>タグを最初に記述してその中に、HTMLを記載するか、<React.Fragment>タグを<div>の代わりに使用する
+        * {}（波括弧）で囲うことで、値の表示が可能となる
+        **/
+        render() {
+            return (
+                <React.Fragment>
+                    <h1>{this.state.step} / {this.limit}</h1>
+                    <h2>{this.state.cycle} 回転</h2>
+                </React.Fragment>
+            )
+        }
+    }
+
+    // idがrootになっているタグを、<Gear limit={8}/>に置換する
+    ReactDOM.render(<Gear limit={8}/>, document.getElementById("root"))
+</script>
+</html>
